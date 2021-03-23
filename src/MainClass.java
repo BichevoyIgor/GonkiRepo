@@ -1,3 +1,4 @@
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 
@@ -5,7 +6,7 @@ import java.util.concurrent.CyclicBarrier;
 public class MainClass {
     public static final int CARS_COUNT = 4;
     public static CountDownLatch ready = new CountDownLatch(CARS_COUNT);
-    public static CyclicBarrier barrier = new CyclicBarrier(CARS_COUNT);
+    public static CyclicBarrier barrier = new CyclicBarrier(CARS_COUNT +1);
 
     public static void main(String[] args) {
         System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> Подготовка!!!");
@@ -17,12 +18,16 @@ public class MainClass {
         for (int i = 0; i < cars.length; i++) {
             new Thread(cars[i]).start();
         }
+
         try {
             ready.await();
+            System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> Гонка началась!!!");
+            barrier.await();
+            System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> Гонка закончилась!!!");
         } catch (InterruptedException e) {
             e.printStackTrace();
+        } catch (BrokenBarrierException e) {
+            e.printStackTrace();
         }
-        System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> Гонка началась!!!");
-        System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> Гонка закончилась!!!");
     }
 }
