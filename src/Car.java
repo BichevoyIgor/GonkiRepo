@@ -1,7 +1,12 @@
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class Car implements Runnable {
     private static int CARS_COUNT;
+    private static AtomicInteger win;
     static {
         CARS_COUNT = 0;
+        win = new AtomicInteger(0);
     }
     private Race race;
     private int speed;
@@ -27,8 +32,24 @@ public class Car implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        MainClass.ready.countDown();
+        try {
+            MainClass.ready.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         for (int i = 0; i < race.getStages().size(); i++) {
             race.getStages().get(i).go(this);
+        }
+        if (win.incrementAndGet() == 1){
+            System.out.println(name + " WIN!!!");
+        }
+        try {
+            MainClass.barrier.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (BrokenBarrierException e) {
+            e.printStackTrace();
         }
     }
 }
